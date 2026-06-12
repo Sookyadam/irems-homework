@@ -1,9 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "wallet.fullname" . }}-config
-  labels:
-    {{- include "wallet.labels" . | nindent 4 }}
+  name: wallet-config
 data:
   LOG_LEVEL: {{ .Values.config.LOG_LEVEL | quote }}
   TIMEZONE: {{ .Values.config.TIMEZONE | quote }}

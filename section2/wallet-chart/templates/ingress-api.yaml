@@ -1,9 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "wallet.fullname" . }}-api
-  labels:
-    {{- include "wallet.labels" . | nindent 4 }}
+  name: wallet-ingress-api
     app.kubernetes.io/component: api
   annotations:
     {{- toYaml .Values.ingress.annotations | nindent 4 }}
@@ -21,6 +19,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ include "wallet.fullname" . }}-api
+                name: wallet-api
                 port:
                   name: http

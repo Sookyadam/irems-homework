@@ -1,26 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "wallet.fullname" . }}-api
+  name: wallet-api
   labels:
-    {{- include "wallet.labels" . | nindent 4 }}
     app.kubernetes.io/component: api
 spec:
   replicas: {{ .Values.replicaCount.api }}
-  selector:
-    matchLabels:
-      {{- include "wallet.selectorLabels" (dict "Release" .Release "Chart" .Chart "Values" .Values "component" "api") | nindent 6 }}
   template:
     metadata:
-      labels:
-        {{- include "wallet.selectorLabels" (dict "Release" .Release "Chart" .Chart "Values" .Values "component" "api") | nindent 8 }}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: {{ .Values.api.metricsPort | quote }}
     spec:
-      serviceAccountName: {{ include "wallet.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: api
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -42,22 +33,8 @@ spec:
               protocol: TCP
           envFrom:
             - configMapRef:
-                name: {{ include "wallet.fullname" . }}-config
+                name: wallet-config
             - secretRef:
-                name: {{ include "wallet.secretName" . }}
-          securityContext:
-            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+                name: wallet-secret
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 10
-            periodSeconds: 10
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 20
