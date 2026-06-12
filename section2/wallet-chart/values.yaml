@@ -57,21 +57,3 @@ secrets:
   WALLET_PASS: Banana123
   S3_ACCESS_KEY: ffwR9iL8z5OT8mdS36Po
   S3_SECRET_KEY: cV1QThkqAOmdsafasdfasdfcmM7sdfgLu5wCV5cPaV
-
-podSecurityContext:
-  runAsNonRoot: true
-  seccompProfile:
-    type: RuntimeDefault
-
-containerSecurityContext:
-  allowPrivilegeEscalation: false
-  readOnlyRootFilesystem: true
-  capabilities:
-    drop:
-      - ALL
-
-autoscaling:
-  enabled: false
-
-networkPolicy:
-  enabled: false
