@@ -1,0 +1,77 @@
+replicaCount:
+  ui: 2
+  api: 2
+
+image:
+  repository: my-wallet
+  tag: "20260420"
+  pullPolicy: IfNotPresent
+
+ui:
+  port: 80
+  command: []
+  args: []
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+api:
+  port: 4001
+  metricsPort: 3999
+  command: []
+  args: []
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+
+#! nginx-ingress controller configuration for both UI and API. This requires an nginx ingress controller to be installed in the cluster via helm chart or other way.
+ingress:
+  className: nginx
+  tlsSecretName: my-wallet-tls
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  ui:
+    host: mywallet.com
+  api:
+    host: api.mywallet.com
+
+config:
+  LOG_LEVEL: DEBUG
+  TIMEZONE: Europe/Berlin
+  S3_ENDPOINT: s3end.com
+  BUCKETNAME: my-coins
+  METRICS_PORT: "3999"
+
+secrets:
+  create: true
+  existingSecret: ""
+  WALLET_USER: CoinAdmin
+  WALLET_PASS: Banana123
+  S3_ACCESS_KEY: ffwR9iL8z5OT8mdS36Po
+  S3_SECRET_KEY: cV1QThkqAOmdsafasdfasdfcmM7sdfgLu5wCV5cPaV
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+autoscaling:
+  enabled: false
+
+networkPolicy:
+  enabled: false

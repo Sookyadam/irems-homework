@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: s3-folder-sync
+spec:
+  schedule: "0 * * * *"
+  timeZone: "Etc/UTC"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: sync
+              image: registry.example.com/s3-folder-sync:1
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: S3_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: s3-sync-secret
+                      key: S3_ACCESS_KEY
+                - name: S3_SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: s3-sync-secret
+                      key: S3_SECRET_KEY
+                - name: BUCKETNAME
+                  value: data
+                - name: S3_ENDPOINT
+                  value: http://minio:9000
+                - name: S3_REGION
+                  value: us-east-1
+                - name: SYNC_SOURCE
+                  value: /sync-data
+              volumeMounts:
+                - name: sync-source
+                  mountPath: /sync-data
+                  readOnly: true
+          volumes:
+            - name: sync-source
+              persistentVolumeClaim:
+                claimName: sync-source-pvc

@@ -1,0 +1,33 @@
+# ? Docs used:
+# ? https://hub.docker.com/r/minio/minio
+# ? https://docs.min.io/aistor/installation/container/distributed/?_gl=1*1xc97e8*_up*MQ..*_ga*MjAyOTk5NjY5Ny4xNzgxMjUyMjY3*_ga_EHESQ21MLT*czE3ODEyNTIyNjYkbzEkZzAkdDE3ODEyNTIyNjYkajYwJGwwJGgw
+
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data
+    volumes:
+      - /home/sookya/Documents/Projects/irems/minio_data:/data
+
+  sync:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sync
+    depends_on:
+      - minio
+    environment:
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      S3_REGION: us-east-1
+      S3_ENDPOINT: http://minio:9000
+      SYNC_SOURCE: /app/data
+      BUCKET_NAME: data
+    volumes:
+      - /home/sookya/Documents/Projects/irems/test:/app/data:ro
